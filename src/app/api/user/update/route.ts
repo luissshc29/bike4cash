@@ -1,7 +1,7 @@
 import { NextResponse, NextRequest } from "next/server";
 import { updateUser } from "@/app/lib/db";
 
-async function handler(req: NextRequest, res: NextResponse) {
+export async function POST(req: NextRequest, res: NextResponse) {
     const RequestBody = await req.json();
     try {
         await updateUser(RequestBody);
@@ -10,5 +10,3 @@ async function handler(req: NextRequest, res: NextResponse) {
         throw new Error();
     }
 }
-
-export { handler as POST };

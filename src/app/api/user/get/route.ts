@@ -1,7 +1,7 @@
 import { NextResponse, NextRequest } from "next/server";
 import { getUsers } from "@/app/lib/db";
 
-export async function handler(req: NextRequest, res: NextResponse) {
+export async function GET(req: NextRequest, res: NextResponse) {
     try {
         const res = await getUsers();
         return NextResponse.json({
@@ -11,5 +11,3 @@ export async function handler(req: NextRequest, res: NextResponse) {
         throw new Error();
     }
 }
-
-export { handler as GET };
