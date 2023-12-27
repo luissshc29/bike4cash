@@ -1,0 +1,29 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// npx prisma generate
+// npx prisma db push
+// npm i @prisma/client
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "mysql"
+    url      = env("DATABASE_URL")
+}
+
+model userLogin {
+    id       Int    @id @default(autoincrement())
+    username String @unique
+    password String
+}
+
+model userData {
+    username String @id @unique
+    name     String
+    email    String @unique
+    address  String
+    image    String
+}
