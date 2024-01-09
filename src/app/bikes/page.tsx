@@ -217,9 +217,12 @@ export default function BikesPage() {
                         ))}
                     </div>
                 </ResizablePanel>
-                <ResizableHandle withHandle className="bg-green-500 z-20" />
+                <ResizableHandle
+                    withHandle
+                    className="bg-green-500 z-20 w-[3px]"
+                />
                 <ResizablePanel defaultSize={15} className="bg-white">
-                    <div className="absolute w-[5vw] h-full top-0 right-0 bg-gradient-to-r from-transparent to-white z-10"></div>
+                    <div className="absolute w-[4vw] h-full top-0 right-0 bg-gradient-to-r from-transparent to-white z-10"></div>
                     <FilterMenu />
                 </ResizablePanel>
             </ResizablePanelGroup>
