@@ -139,15 +139,19 @@ export default function Card({
             }`}
         >
             <div className="text-xl absolute right-0 top-[-2px] flex items-center gap-1 rounded-lg shadow-sm shadow-neutral-300 py-1 px-2">
-                <p className="text-sm font-semibold">
-                    {bike.rating?.toFixed(1)}
-                </p>
-                {(bike.rating as number) >= 4 ? (
-                    <IoIosStar className="text-[#22c55e] animate-pulse" />
-                ) : (bike.rating as number) < 3 ? (
-                    <IoIosStar className="text-[#ef4444]" />
-                ) : (
-                    <IoIosStar className="text-[#eab308]" />
+                {window.location.pathname !== "/user/favorites" && (
+                    <>
+                        <p className="text-sm font-semibold">
+                            {bike.rating?.toFixed(1)}
+                        </p>
+                        {(bike.rating as number) >= 4 ? (
+                            <IoIosStar className="text-[#22c55e] animate-pulse" />
+                        ) : (bike.rating as number) < 3 ? (
+                            <IoIosStar className="text-[#ef4444]" />
+                        ) : (
+                            <IoIosStar className="text-[#eab308]" />
+                        )}
+                    </>
                 )}
             </div>
             {window.location.pathname === "/user/favorites" && (
