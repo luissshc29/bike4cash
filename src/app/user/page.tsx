@@ -371,10 +371,10 @@ export default function UserPage() {
                 <div className="w-full lg:w-[20vw] p-8 flex flex-col gap-4 items-center justify-center lg:border-r-2 lg:border-green-500">
                     <div
                         className="rounded-full border-4 border-green-500 
-                            overflow-hidden h-[125px] w-[125px]"
+                            overflow-hidden h-[125px] w-[125px] flex justify-center items-center"
                     >
                         <img
-                            className="h-[125px] object-cover"
+                            className="min-h-[125px] min-w-[125px]"
                             src={
                                 userData.image ||
                                 "https://cdn-icons-png.flaticon.com/512/149/149071.png"
