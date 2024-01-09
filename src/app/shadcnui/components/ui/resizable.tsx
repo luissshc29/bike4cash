@@ -33,7 +33,7 @@ const ResizableHandle = ({
         {...props}
     >
         {withHandle && (
-            <div className="z-10 p-1 flex items-center justify-center rounded-full border border-green-600 text-xl text-green-600 bg-green-200">
+            <div className="z-10 p-1 flex items-center justify-center rounded-full border border-green-600 text-xl text-green-600 bg-green-200 fixed top-[80vh]">
                 <LuChevronsLeftRight />
             </div>
         )}

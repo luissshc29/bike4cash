@@ -219,7 +219,7 @@ export default function BikesPage() {
                 </ResizablePanel>
                 <ResizableHandle
                     withHandle
-                    className="bg-green-500 z-20 w-[3px]"
+                    className="bg-green-500 z-20 w-[2px]"
                 />
                 <ResizablePanel defaultSize={15} className="bg-white">
                     <div className="absolute w-[4vw] h-full top-0 right-0 bg-gradient-to-r from-transparent to-white z-10"></div>
