@@ -162,7 +162,7 @@ export default function FavoritesPage() {
                 </>
             ) : (
                 <h2 className="w-[80vw] text-center mx-auto mt-8 mb-4 font-semibold text-lg md:text-xl text-neutral-500 border-b-[1px] border-neutral-400">
-                    You have not add any bike to your favorites yet :(
+                    You have not added any bike to your favorites yet :(
                 </h2>
             )}
         </div>
