@@ -279,7 +279,7 @@ export default function Header() {
                                             <li>
                                                 <Dialog>
                                                     <DialogTrigger asChild>
-                                                        <button className="text-red-600 text-sm">
+                                                        <button className="text-red-600">
                                                             Logout
                                                         </button>
                                                     </DialogTrigger>
