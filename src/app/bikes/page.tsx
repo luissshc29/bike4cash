@@ -134,7 +134,7 @@ export default function BikesPage() {
 
     if (loading) {
         return (
-            <div className="scale-[0.3] h-[25vh]">
+            <div className="scale-[0.3] h-[20vh]">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
                     <circle
                         fill="#22C55E"
@@ -191,6 +191,9 @@ export default function BikesPage() {
                         ></animate>
                     </circle>
                 </svg>
+                <h2 className="scale-[2.5] font-semibold text-green-500 text-xl text-center">
+                    Gathering our bikes details...
+                </h2>
             </div>
         );
     }

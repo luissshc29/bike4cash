@@ -20,9 +20,7 @@ export async function getUser(data: { search: string }) {
 }
 
 // User's data
-export async function createUser(
-    user: SigninDataType & UserDataType & { image: string }
-) {
+export async function createUserLogin(user: SigninDataType) {
     try {
         await prisma.userLogin.create({
             data: {
@@ -30,17 +28,20 @@ export async function createUser(
                 password: user.password || "",
             },
         });
+    } catch (error) {
+        throw new Error().message;
+    }
+}
+
+export async function createUserData(user: UserDataType & { image: string }) {
+    try {
         await prisma.userData.create({
             data: {
-                username: user.username || "",
-                name: user.name || "",
-                email: user.email || "",
-                address: user.address || "",
-                image: user.image || "",
+                ...user,
             },
         });
     } catch (error) {
-        throw new Error();
+        throw new Error().message;
     }
 }
 

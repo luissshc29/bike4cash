@@ -1,12 +1,12 @@
 import { NextResponse, NextRequest } from "next/server";
-import { createUser } from "@/app/lib/db";
+import { createUserData } from "@/app/lib/db";
 
 export async function POST(req: NextRequest, res: NextResponse) {
     const RequestBody = await req.json();
     try {
-        createUser(RequestBody);
-        return NextResponse.json({ message: "User created succesfully!" });
+        await createUserData(RequestBody);
+        return NextResponse.json({ message: "User data created succesfully!" });
     } catch (error) {
-        throw new Error();
+        throw new Error().message;
     }
 }

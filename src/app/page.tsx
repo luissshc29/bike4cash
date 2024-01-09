@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default function Home() {
     return (
         <Banner
-            height={"100vh"}
+            height={"80vh"}
             src={`home-page-banner.jpg`}
             alt="Cycling image"
             className="min-w-[1024px]"

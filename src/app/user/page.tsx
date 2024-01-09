@@ -88,48 +88,68 @@ export default function UserPage() {
                 });
                 setLoading(false);
             } else {
-                if (session.status === "authenticated") {
-                    try {
-                        const userName = generateFromEmail(
-                            session.data?.user?.email as string
-                        );
-                        const newUser = {
+                const userName = generateFromEmail(
+                    session.data?.user?.email as string,
+                    2
+                );
+                const newUserLogin = {
+                    username: userName,
+                    password: "",
+                };
+                try {
+                    const res = await fetch("/api/user/create/user-login", {
+                        method: "POST",
+                        headers: {
+                            "Content-type": "application/json",
+                        },
+                        body: JSON.stringify(newUserLogin),
+                    });
+                    if (res.ok) {
+                        const newUserData = {
                             username: userName,
                             name: session.data?.user?.name as string,
                             email: session.data?.user?.email as string,
                             image: session.data?.user?.image as string,
+                            address: "",
                         };
 
-                        const res = await fetch("/api/user/create", {
-                            method: "POST",
-                            headers: {
-                                "Content-type": "application/json",
-                            },
-                            body: JSON.stringify(newUser),
-                        });
-                        if (res.ok) {
-                            setUserData({
-                                ...newUser,
-                                address: "",
-                            });
-                            reset({
-                                ...newUser,
-                                address: "",
-                            });
-                            setLoading(false);
-                        } else {
+                        try {
+                            const res = await fetch(
+                                "/api/user/create/user-data",
+                                {
+                                    method: "POST",
+                                    headers: {
+                                        "Content-type": "application/json",
+                                    },
+                                    body: JSON.stringify(newUserData),
+                                }
+                            );
+                            if (res.ok) {
+                                setUserData({
+                                    ...newUserData,
+                                    address: "",
+                                });
+                                reset({
+                                    ...newUserData,
+                                    address: "",
+                                });
+                                setLoading(false);
+                            } else {
+                                throw new Error();
+                            }
+                        } catch (error) {
                             throw new Error();
                         }
-                    } catch (error) {
-                        toast({
-                            title: "Sorry! We had a problem creating your profile",
-                            description:
-                                "Please, try again with some other method!",
-                            variant: "destructive",
-                        });
+                    } else {
+                        throw new Error();
                     }
-                } else {
-                    return;
+                } catch (error) {
+                    toast({
+                        title: "Sorry! We had a problem creating your profile",
+                        description:
+                            "Please, try again with some other method!",
+                        variant: "destructive",
+                    });
                 }
             }
         }
@@ -265,7 +285,7 @@ export default function UserPage() {
 
     if (loading) {
         return (
-            <div className="scale-[0.3] h-[25vh]">
+            <div className="scale-[0.3] h-[20vh]">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
                     <circle
                         fill="#22C55E"
@@ -322,6 +342,9 @@ export default function UserPage() {
                         ></animate>
                     </circle>
                 </svg>
+                <h2 className="scale-[2.5] font-semibold text-green-500 text-xl text-center">
+                    Gathering your information...
+                </h2>
             </div>
         );
     }

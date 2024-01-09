@@ -7,6 +7,12 @@ import { LiteralUnion, signIn } from "next-auth/react";
 import { BuiltInProviderType } from "next-auth/providers/index";
 import { Input } from "../shadcnui/components/ui/input";
 import LoadingSVG from "@/utils/svg/LoadingSVG";
+import {
+    Tabs,
+    TabsContent,
+    TabsList,
+    TabsTrigger,
+} from "../shadcnui/components/ui/tabs";
 
 export type SigninDataType = {
     username: string;
@@ -15,6 +21,7 @@ export type SigninDataType = {
 
 type SignupDataType = {
     newUsername: string;
+    newEmail: string;
     newPassword: string;
     repeatPassword: string;
 };
@@ -27,7 +34,6 @@ export default function SigninPage() {
         document.title = "Bike4Cash | Sign in";
         const url = new URL(location.href);
         redirectUrl = url.searchParams.get("callbackUrl")!;
-        console.log(redirectUrl);
     }, []);
 
     const {
@@ -45,13 +51,14 @@ export default function SigninPage() {
                 password: data.password,
                 callbackUrl: redirectUrl,
             });
-            if (res?.ok) {
-            } else {
-                setError("Wrong username and/or password!");
+            if (res?.error) {
                 throw new Error();
             }
         } catch (error) {
-            console.log(error);
+            setSigninError("Wrong username and/or password!");
+            setTimeout(() => {
+                setSigninError("");
+            }, 7000);
         }
         setLoading(false);
         reset();
@@ -59,38 +66,65 @@ export default function SigninPage() {
 
     const onSignup: SubmitHandler<SignupDataType> = async (data) => {
         setLoading(true);
-        const newData = {
+        const newLoginData = {
             username: data.newUsername,
             password: data.newPassword,
         };
+        const newUserData = {
+            username: data.newUsername,
+            name: "",
+            email: data.newEmail,
+            address: "",
+            image: "",
+        };
         if (data.newPassword !== data.repeatPassword) {
-            setError("The passwords don't match!");
+            setSignupError("The passwords don't match!");
             setTimeout(() => {
-                setError("");
+                setSignupError("");
             }, 7000);
         } else {
             try {
-                const res = await fetch("/api/user/create", {
+                const createLogin = await fetch("/api/user/create/user-login", {
                     method: "POST",
                     headers: {
                         "Content-type": "application/json",
                     },
-                    body: JSON.stringify(newData),
+                    body: JSON.stringify(newLoginData),
                 });
-                if (res.ok) {
-                    signIn("credentials", {
-                        username: newData.username,
-                        password: newData.password,
-                        callbackUrl: redirectUrl,
-                    });
-                    reset();
-                } else {
-                    throw new Error();
+                try {
+                    const createData = await fetch(
+                        "/api/user/create/user-data",
+                        {
+                            method: "POST",
+                            headers: {
+                                "Content-type": "application/json",
+                            },
+                            body: JSON.stringify(newUserData),
+                        }
+                    );
+                    console.log(await createData.json());
+                    if (createLogin.ok && createData.ok) {
+                        setMode("signin");
+                        reset();
+                    } else {
+                        setSignupError("User already exists!");
+                        setTimeout(() => {
+                            setSignupError("");
+                        }, 7000);
+                        throw new Error();
+                    }
+                } catch (error) {
+                    console.log(error);
+                    setSignupError("User already exists!");
+                    setTimeout(() => {
+                        setSignupError("");
+                    }, 7000);
                 }
             } catch (error) {
-                setError("User already exists!");
+                console.log(error);
+                setSignupError("User already exists!");
                 setTimeout(() => {
-                    setError("");
+                    setSignupError("");
                 }, 7000);
             }
         }
@@ -103,25 +137,47 @@ export default function SigninPage() {
             const res = await signIn(provider, {
                 callbackUrl: redirectUrl,
             });
-            if (res?.ok) {
-            } else {
-                setError("Couldn't authenticate this user!");
+            if (res?.error) {
+                setSigninError("Couldn't authenticate this user!");
                 throw new Error();
             }
         } catch (error) {
-            console.log(error);
+            setSigninError("Couldn't authenticate this user!");
         }
         setLoading(false);
     }
 
-    const [error, setError] = useState<string>();
+    const [signinError, setSigninError] = useState<string>();
+    const [signupError, setSignupError] = useState<string>();
     const [mode, setMode] = useState<"signin" | "signup">("signin");
 
     return (
-        <div className="w-[90vw] mx-auto flex flex-col [@media(min-width:740px)]:flex-row justify-center py-8 pb-16 gap-2">
-            {mode === "signin" ? (
+        <Tabs value={mode} className="w-[90vw] mx-auto py-8 pb-16 grid ">
+            <TabsList className="mx-auto grid grid-cols-2 w-3/4 md:w-1/2">
+                <TabsTrigger
+                    value="signin"
+                    onClick={() => {
+                        reset();
+                        setMode("signin");
+                        document.title = "Bike4Cash | Sign in";
+                    }}
+                >
+                    Sign in
+                </TabsTrigger>
+                <TabsTrigger
+                    value="signup"
+                    onClick={() => {
+                        reset();
+                        setMode("signup");
+                        document.title = "Bike4Cash | Sign up";
+                    }}
+                >
+                    Sign up
+                </TabsTrigger>
+            </TabsList>
+            <TabsContent value="signin">
                 <form
-                    className="flex w-full h-full flex-col justify-center items-center gap-4 border-4 border-green-500 py-8 px-4 shadow-lg shadow-neutral-400 [@media(min-width:740px)]:animate-content-bottom transition-all duration-350 overflow-hidden"
+                    className="flex flex-col justify-center items-center gap-4 border-2 border-green-500 py-8 px-4 shadow-lg shadow-neutral-300 animate-content-right transition-all duration-350 overflow-hidden"
                     onSubmit={handleSubmit(onSignin)}
                 >
                     <h2 className="text-3xl font-bold text-green-500">
@@ -130,9 +186,14 @@ export default function SigninPage() {
                     <p className="mb-6 text-sm text-neutral-600">
                         Sign in to access your account
                     </p>
-                    <p className="text-sm text-red-600">
-                        {errors.username?.message}
-                    </p>
+                    {signinError && (
+                        <p className="text-sm text-red-600">{signinError}</p>
+                    )}
+                    {errors && (
+                        <p className="text-sm text-red-600">
+                            {errors.username?.message}
+                        </p>
+                    )}
                     <Input
                         type="text"
                         placeholder="Your username"
@@ -286,15 +347,17 @@ export default function SigninPage() {
                             onClick={() => {
                                 reset();
                                 setMode("signup");
+                                document.title = "Bike4Cash | Sign up";
                             }}
                         >
                             Click here
                         </Button>
                     </p>
                 </form>
-            ) : (
+            </TabsContent>
+            <TabsContent value="signup">
                 <form
-                    className="flex w-full h-full flex-col justify-center items-center gap-4 border-4 border-green-500 py-8 px-4 shadow-lg shadow-neutral-400 animate-content-right [@media(min-width:740px)]:animate-content-bottom transition-all duration-350 overflow-hidden"
+                    className="flex flex-col justify-center items-center gap-4 border-2 border-green-500 py-8 px-4 shadow-lg shadow-neutral-300 animate-content-left transition-all duration-350 overflow-hidden"
                     onSubmit={handleSubmit(onSignup)}
                 >
                     <h2 className="text-3xl font-bold text-green-500">
@@ -303,10 +366,13 @@ export default function SigninPage() {
                     <p className="mb-6 text-sm text-neutral-600">
                         Join us today!
                     </p>
-                    {error && <p className="text-sm text-red-600">{error}</p>}
+                    {signupError && (
+                        <p className="text-sm text-red-600">{signupError}</p>
+                    )}
                     {errors && (
                         <p className="text-sm text-red-600">
-                            {errors.newUsername?.message}
+                            {errors.newUsername?.message ||
+                                errors.newEmail?.message}
                         </p>
                     )}
                     <Input
@@ -319,6 +385,19 @@ export default function SigninPage() {
                                 value: /^\S+$/,
                                 message:
                                     "Your username can't contain white whitespace(s)",
+                            },
+                        })}
+                    />
+                    <Input
+                        type="email"
+                        placeholder="Your email"
+                        className="md:w-3/5"
+                        {...register("newEmail", {
+                            required: true,
+                            pattern: {
+                                value: /^[^\s@]+@[^\s.]+\.[^\s]+$/,
+                                message:
+                                    "Your email must match the example: example@email.com",
                             },
                         })}
                     />
@@ -353,13 +432,14 @@ export default function SigninPage() {
                         onClick={() => {
                             reset();
                             setMode("signin");
+                            document.title = "Bike4Cash | Sign in";
                         }}
                         disabled={loading}
                     >
                         Cancel
                     </Button>
                 </form>
-            )}
-        </div>
+            </TabsContent>
+        </Tabs>
     );
 }

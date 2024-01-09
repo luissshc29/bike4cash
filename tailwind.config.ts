@@ -73,9 +73,9 @@ module.exports = {
                     from: { height: "var(--radix-accordion-content-height)" },
                     to: { height: 0 },
                 },
-                "content-bottom": {
-                    from: { transform: "translateY(100%)" },
-                    to: { transform: "translateY(0)" },
+                "content-left": {
+                    from: { transform: "translateX(-100%)" },
+                    to: { transform: "translateX(0)" },
                 },
                 "content-right": {
                     from: { transform: "translateX(100%)" },
@@ -89,7 +89,7 @@ module.exports = {
             animation: {
                 "accordion-down": "accordion-down 0.2s ease-out",
                 "accordion-up": "accordion-up 0.2s ease-out",
-                "content-bottom": "content-bottom 0.7s ease-in-out",
+                "content-left": "content-left 0.7s ease-in-out",
                 "content-right": "content-right 0.7s ease-in-out",
                 "loading-bar": "loading-bar linear",
             },
