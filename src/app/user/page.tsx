@@ -8,7 +8,6 @@ import { CiEdit } from "react-icons/ci";
 import Button from "../components/Button/Button";
 import { Input } from "../shadcnui/components/ui/input";
 import { Label } from "../shadcnui/components/ui/label";
-import { IoIosArrowForward } from "react-icons/io";
 import {
     Popover,
     PopoverContent,
@@ -18,7 +17,21 @@ import { PopoverClose } from "@radix-ui/react-popover";
 import { imageUpload } from "../lib/cloudinary";
 import { useToast } from "../shadcnui/components/ui/use-toast";
 import LoadingSVG from "@/utils/svg/LoadingSVG";
-import { generateFromEmail, generateUsername } from "unique-username-generator";
+import { generateFromEmail } from "unique-username-generator";
+import { getUserData } from "@/utils/functions/user";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuGroup,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "../shadcnui/components/ui/dropdown-menu";
+import { BsMenuApp } from "react-icons/bs";
+import { MdFavoriteBorder } from "react-icons/md";
+import { RiMoneyDollarCircleLine } from "react-icons/ri";
+import { MdOutlineDirectionsBike } from "react-icons/md";
+import Link from "next/link";
 
 export type UserDataType = {
     username: string;
@@ -30,7 +43,7 @@ export type UserDataType = {
 export default function UserPage() {
     const session = useSession();
     const { toast } = useToast();
-    const [loading, setLoading] = useState<boolean>(false);
+    const [loading, setLoading] = useState<boolean>(true);
 
     const loginMethod: "provider" | "credentials" = (session.data?.user
         ?.email as string)
@@ -61,68 +74,63 @@ export default function UserPage() {
     });
 
     async function getUser() {
-        const res = await fetch(`/api/user/get`);
-        const json = await res.json();
-        const users: Array<UserDataType & { image?: string }> = json.users;
-        const user = users.find((user) => {
-            if (loginMethod === "credentials") {
-                return user.username === (session.data?.user?.name as string);
+        if (session.status === "authenticated") {
+            const user: UserDataType & { image?: string } = await getUserData(
+                session
+            );
+            if (user) {
+                setUserData(user as UserDataType & { image?: string });
+                reset({
+                    username: user.username,
+                    name: user.name,
+                    email: user.email,
+                    address: user.address,
+                });
+                setLoading(false);
             } else {
-                return user.email === (session.data?.user?.email as string);
-            }
-        });
-        if (user) {
-            setUserData(user as UserDataType & { image?: string });
-            reset({
-                username: user.username,
-                name: user.name,
-                email: user.email,
-                address: user.address,
-            });
-            setLoading(false);
-        } else {
-            if (session.status === "authenticated") {
-                try {
-                    const userName = generateFromEmail(
-                        session.data?.user?.email as string
-                    );
-                    const newUser = {
-                        username: userName,
-                        name: session.data?.user?.name as string,
-                        email: session.data?.user?.email as string,
-                        image: session.data?.user?.image as string,
-                    };
+                if (session.status === "authenticated") {
+                    try {
+                        const userName = generateFromEmail(
+                            session.data?.user?.email as string
+                        );
+                        const newUser = {
+                            username: userName,
+                            name: session.data?.user?.name as string,
+                            email: session.data?.user?.email as string,
+                            image: session.data?.user?.image as string,
+                        };
 
-                    const res = await fetch("/api/user/create", {
-                        method: "POST",
-                        headers: {
-                            "Content-type": "application/json",
-                        },
-                        body: JSON.stringify(newUser),
-                    });
-                    if (res.ok) {
-                        setUserData({
-                            ...newUser,
-                            address: "",
+                        const res = await fetch("/api/user/create", {
+                            method: "POST",
+                            headers: {
+                                "Content-type": "application/json",
+                            },
+                            body: JSON.stringify(newUser),
                         });
-                        reset({
-                            ...newUser,
-                            address: "",
+                        if (res.ok) {
+                            setUserData({
+                                ...newUser,
+                                address: "",
+                            });
+                            reset({
+                                ...newUser,
+                                address: "",
+                            });
+                            setLoading(false);
+                        } else {
+                            throw new Error();
+                        }
+                    } catch (error) {
+                        toast({
+                            title: "Sorry! We had a problem creating your profile",
+                            description:
+                                "Please, try again with some other method!",
+                            variant: "destructive",
                         });
-                        setLoading(false);
-                    } else {
-                        throw new Error();
                     }
-                } catch (error) {
-                    toast({
-                        title: "Sorry! We had a problem creating your profile",
-                        description:
-                            "Please, try again with some other method!",
-                        variant: "destructive",
-                    });
+                } else {
+                    return;
                 }
-            } else {
-                return;
             }
         }
     }
@@ -256,90 +264,109 @@ export default function UserPage() {
     }, [session.status]);
 
     if (loading) {
-        return <div></div>;
+        return (
+            <div className="scale-[0.3] h-[25vh]">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+                    <circle
+                        fill="#22C55E"
+                        stroke="#22C55E"
+                        strokeWidth="9"
+                        r="3"
+                        cx="75"
+                        cy="135"
+                    >
+                        <animate
+                            attributeName="cy"
+                            calcMode="spline"
+                            dur="1.5"
+                            values="135;100;135;"
+                            keySplines=".5 0 .5 1;.5 0 .5 1"
+                            repeatCount="indefinite"
+                            begin="-.4"
+                        ></animate>
+                    </circle>
+                    <circle
+                        fill="#22C55E"
+                        stroke="#22C55E"
+                        strokeWidth="9"
+                        r="3"
+                        cx="100"
+                        cy="135"
+                    >
+                        <animate
+                            attributeName="cy"
+                            calcMode="spline"
+                            dur="1.5"
+                            values="135;100;135;"
+                            keySplines=".5 0 .5 1;.5 0 .5 1"
+                            repeatCount="indefinite"
+                            begin="-.2"
+                        ></animate>
+                    </circle>
+                    <circle
+                        fill="#22C55E"
+                        stroke="#22C55E"
+                        strokeWidth="9"
+                        r="3"
+                        cx="125"
+                        cy="135"
+                    >
+                        <animate
+                            attributeName="cy"
+                            calcMode="spline"
+                            dur="1.5"
+                            values="135;100;135;"
+                            keySplines=".5 0 .5 1;.5 0 .5 1"
+                            repeatCount="indefinite"
+                            begin="0"
+                        ></animate>
+                    </circle>
+                </svg>
+            </div>
+        );
     }
 
     return (
         <div>
             <Banner height="50vh" src="user-page-banner.jpg">
-                {session.status === "authenticated" ? (
+                {session.status === "authenticated" && (
                     <h1 className="text-3xl md:text-4xl font-bold text-white text">
                         <span className="text-green-500">Welcome</span>,{" "}
                         {userData.name || userData.username}!
                     </h1>
-                ) : (
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 200 200"
-                    >
-                        <circle
-                            fill="#22C55E"
-                            stroke="#22C55E"
-                            strokeWidth="9"
-                            r="3"
-                            cx="75"
-                            cy="135"
-                        >
-                            <animate
-                                attributeName="cy"
-                                calcMode="spline"
-                                dur="1.5"
-                                values="135;100;135;"
-                                keySplines=".5 0 .5 1;.5 0 .5 1"
-                                repeatCount="indefinite"
-                                begin="-.4"
-                            ></animate>
-                        </circle>
-                        <circle
-                            fill="#22C55E"
-                            stroke="#22C55E"
-                            strokeWidth="9"
-                            r="3"
-                            cx="100"
-                            cy="135"
-                        >
-                            <animate
-                                attributeName="cy"
-                                calcMode="spline"
-                                dur="1.5"
-                                values="135;100;135;"
-                                keySplines=".5 0 .5 1;.5 0 .5 1"
-                                repeatCount="indefinite"
-                                begin="-.2"
-                            ></animate>
-                        </circle>
-                        <circle
-                            fill="#22C55E"
-                            stroke="#22C55E"
-                            strokeWidth="9"
-                            r="3"
-                            cx="125"
-                            cy="135"
-                        >
-                            <animate
-                                attributeName="cy"
-                                calcMode="spline"
-                                dur="1.5"
-                                values="135;100;135;"
-                                keySplines=".5 0 .5 1;.5 0 .5 1"
-                                repeatCount="indefinite"
-                                begin="0"
-                            ></animate>
-                        </circle>
-                    </svg>
                 )}
             </Banner>
-            <Button
-                link={true}
-                href="/user/favorites"
-                variant="primary"
-                className="underline m-4 mb-0 ml-auto scale-[0.85] md:scale-100"
-            >
-                My favorites
-                <div className="text-lg">
-                    <IoIosArrowForward />
-                </div>
-            </Button>
+            <div className="w-screen flex justify-end">
+                <DropdownMenu>
+                    <DropdownMenuTrigger className="border-[1px] border-neutral-400 rounded-lg my-4 m-4 p-2">
+                        <MdOutlineDirectionsBike className="text-neutral-900" />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-[45vw] md:w-[30vw]">
+                        <DropdownMenuGroup>
+                            <DropdownMenuItem>
+                                <Link
+                                    href={"/user/favorites"}
+                                    className="w-full flex items-center justify-between"
+                                >
+                                    <span>My favorites</span>
+                                    <MdFavoriteBorder className="text-lg" />
+                                </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem>
+                                <Link
+                                    href={"/user/rental-history"}
+                                    className="w-full flex items-center justify-between"
+                                >
+                                    <span>My rental history</span>
+                                    <RiMoneyDollarCircleLine className="text-lg" />
+                                </Link>
+                            </DropdownMenuItem>
+                        </DropdownMenuGroup>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            </div>
+
             <div className="py-8 md:py-16 px-8 flex flex-col lg:flex-row gap-4">
                 <div className="w-full lg:w-[20vw] p-8 flex flex-col gap-4 items-center justify-center lg:border-r-2 lg:border-green-500">
                     <div

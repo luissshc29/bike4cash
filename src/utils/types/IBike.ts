@@ -4,4 +4,6 @@ export type IBike = {
     name: string;
     price: number;
     category: string;
+    recommended?: boolean;
+    rating?: number;
 };

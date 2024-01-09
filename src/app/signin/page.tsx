@@ -27,6 +27,7 @@ export default function SigninPage() {
         document.title = "Bike4Cash | Sign in";
         const url = new URL(location.href);
         redirectUrl = url.searchParams.get("callbackUrl")!;
+        console.log(redirectUrl);
     }, []);
 
     const {
@@ -127,7 +128,7 @@ export default function SigninPage() {
                         Sign in
                     </h2>
                     <p className="mb-6 text-sm text-neutral-600">
-                        Login to access your account
+                        Sign in to access your account
                     </p>
                     <p className="text-sm text-red-600">
                         {errors.username?.message}

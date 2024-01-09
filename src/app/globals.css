@@ -33,12 +33,6 @@
     --ring: 0 0% 3.9%;
  
     --radius: 0.5rem;
-    
-    /* Colors for each bike category */
-    --performance:#22c55e;
-    --leisure:#0084ff;
-    --premium:#ffd000;
-    --road:#814500;
   }
  
   .dark {

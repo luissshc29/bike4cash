@@ -27,3 +27,29 @@ model userData {
     address  String
     image    String
 }
+
+model userFavorites {
+    id       Int    @id @default(autoincrement())
+    username String
+    bikeId   Int
+}
+
+model userTransactions {
+    id              Int    @id @default(autoincrement())
+    username        String
+    bikeId          Int
+    paymentMethod   String
+    installments    Int
+    initialDate     String
+    finalDate       String
+    totalPrice      Float
+    transactionDate String
+}
+
+model bikeRatings {
+    id       Int    @id @default(autoincrement())
+    username String
+    bikeId   Int
+    rating   Int
+    message  String
+}

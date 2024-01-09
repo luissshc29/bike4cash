@@ -18,13 +18,10 @@ module.exports = {
             padding: "2rem",
         },
         extend: {
+            fontSize: {
+                md: ["16px", "24px"],
+            },
             colors: {
-                bike: {
-                    performance: "var(--performance)",
-                    leisure: "var(--leisure)",
-                    premium: "var(--premium)",
-                    road: "var(--road)",
-                },
                 border: "hsl(var(--border))",
                 input: "hsl(var(--input))",
                 ring: "hsl(var(--ring))",
@@ -64,6 +61,9 @@ module.exports = {
                 md: "calc(var(--radius) - 2px)",
                 sm: "calc(var(--radius) - 4px)",
             },
+            transitionDuration: {
+                "7000": "7000ms",
+            },
             keyframes: {
                 "accordion-down": {
                     from: { height: 0 },
@@ -81,12 +81,17 @@ module.exports = {
                     from: { transform: "translateX(100%)" },
                     to: { transform: "translateX(0)" },
                 },
+                "loading-bar": {
+                    from: { width: "0%" },
+                    to: { width: "100%" },
+                },
             },
             animation: {
                 "accordion-down": "accordion-down 0.2s ease-out",
                 "accordion-up": "accordion-up 0.2s ease-out",
                 "content-bottom": "content-bottom 0.7s ease-in-out",
                 "content-right": "content-right 0.7s ease-in-out",
+                "loading-bar": "loading-bar linear",
             },
         },
     },

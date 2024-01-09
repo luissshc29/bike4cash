@@ -5,6 +5,7 @@ import Header from "./components/Header/Header";
 import Footer from "./footer/Footer";
 import AuthProvider from "./context/AuthProvider";
 import { Toaster } from "./shadcnui/components/ui/toaster";
+import FilterMenuProvider from "./context/FilterMenuContext";
 
 const poppins = Poppins({
     subsets: ["latin"],
@@ -23,12 +24,14 @@ export default function RootLayout({
     return (
         <html lang="en">
             <head>
-                <link rel="icon" href="logo.png" sizes="any" />
+                <link rel="icon" href="/logo.png" sizes="any" />
             </head>
             <body className={`${poppins.className} relative`}>
                 <AuthProvider>
                     <Header />
-                    <main>{children}</main>
+                    <FilterMenuProvider>
+                        <main>{children}</main>
+                    </FilterMenuProvider>
                     <Toaster />
                     <Footer />
                 </AuthProvider>

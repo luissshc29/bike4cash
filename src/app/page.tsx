@@ -18,12 +18,12 @@ export default function Home() {
             <h1 className="text-3xl md:text-4xl font-bold text-white">
                 The{" "}
                 <span className="text-green-500 text-4xl md:text-5xl">#1</span>{" "}
-                bike renting web service!
+                bike rental web service!
             </h1>
             <p className="text-sm md:text-md text-white font-light">
                 We're ready to accompany you on all your journeys!
             </p>
-            <Button href="/bikes" link={true}>
+            <Button href="/bikes/?filter-by=all" link={true}>
                 Rent now
             </Button>
         </Banner>

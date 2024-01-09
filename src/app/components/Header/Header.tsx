@@ -36,9 +36,21 @@ import { FaRegCircleUser } from "react-icons/fa6";
 import { MdMenuOpen } from "react-icons/md";
 import Button from "../Button/Button";
 import { DialogClose } from "@radix-ui/react-dialog";
+import LoadingSVG from "@/utils/svg/LoadingSVG";
 
 export default function Header() {
     const session = useSession();
+    const [loading, setLoading] = useState<boolean>(false);
+
+    async function logOut() {
+        try {
+            setLoading(true);
+            await signOut();
+        } catch (error) {
+            throw new Error();
+        }
+        setLoading(false);
+    }
 
     return (
         <header className="flex justify-around items-center w-screen py-8 rounded-b-xl shadow-lg shadow-neutral-300 bg-white z-10 relative h-[20vh]">
@@ -46,7 +58,7 @@ export default function Header() {
                 href="/"
                 className="flex items-center justify-center gap-2 md:gap-4 w-[50vw] md:w-[30vw]"
             >
-                <img src="logo.png" className="w-1/5 md:w-1/4" />
+                <img src="/logo.png" className="w-1/5 md:w-1/4" />
                 <h1 className="text-xl md:text-3xl font-extrabold">
                     Bike<span className="text-green-500">4Cash</span>
                 </h1>
@@ -65,6 +77,11 @@ export default function Header() {
                                 <MenubarItem>
                                     <Link href="/user/favorites">
                                         My favorites
+                                    </Link>
+                                </MenubarItem>
+                                <MenubarItem>
+                                    <Link href="/user/rental-history">
+                                        My rental history
                                     </Link>
                                 </MenubarItem>
                                 <Dialog>
@@ -87,9 +104,16 @@ export default function Header() {
                                         <DialogFooter>
                                             <Button
                                                 className="bg-red-600 rounded-md"
-                                                onClick={() => signOut()}
+                                                disabled={loading}
+                                                onClick={() => logOut()}
                                             >
-                                                Logout
+                                                {loading ? (
+                                                    <>
+                                                        Loading <LoadingSVG />
+                                                    </>
+                                                ) : (
+                                                    "Sign in"
+                                                )}
                                             </Button>
                                             <DialogClose>
                                                 <p className="text-red-600 font-semibold">
@@ -106,7 +130,7 @@ export default function Header() {
                             href={"/api/auth/signin"}
                             className="text-green-500 text-md font-semibold px-4"
                         >
-                            Login
+                            Sign in
                         </Link>
                     )}
                 </MenubarMenu>
@@ -117,7 +141,7 @@ export default function Header() {
                     <MenubarContent className="flex flex-wrap gap-2 max-w-[25vw] lg:max-w-[40vw] text-xs lg:text-sm p-3">
                         <img
                             className="rounded-sm"
-                            src="about-us-header.jpg"
+                            src="/about-us-header.jpg"
                             alt="Person cycling"
                         />
                         <p className="">
@@ -137,19 +161,28 @@ export default function Header() {
                     </MenubarTrigger>
                     <MenubarContent>
                         <MenubarItem>
-                            <Link href="/bikes" className="text-sm w-full">
+                            <Link
+                                href={`/bikes/?filter-by=recommended`}
+                                className="text-sm w-full"
+                            >
                                 Recommended
                             </Link>
                         </MenubarItem>
                         {categories.map((item) => (
                             <MenubarItem key={item.id}>
-                                <Link href="/bikes" className="text-sm w-full">
+                                <Link
+                                    href={`/bikes/?filter-by=${item.name.toLowerCase()}`}
+                                    className="text-sm w-full"
+                                >
                                     {item.name}
                                 </Link>
                             </MenubarItem>
                         ))}
                         <MenubarItem>
-                            <Link href="/bikes" className="text-sm w-full">
+                            <Link
+                                href="/bikes/?filter-by=all"
+                                className="text-sm w-full"
+                            >
                                 All models
                             </Link>
                         </MenubarItem>
@@ -171,7 +204,7 @@ export default function Header() {
                                     <ul className="flex flex-col gap-3">
                                         <li>
                                             <Link
-                                                href="/bikes"
+                                                href="/bikes/?filter-by=recommended"
                                                 className="text-sm"
                                             >
                                                 Recommended
@@ -180,7 +213,7 @@ export default function Header() {
                                         {categories.map((item) => (
                                             <li key={item.id}>
                                                 <Link
-                                                    href="/bikes"
+                                                    href={`/bikes/?filter-by=${item.name.toLowerCase()}`}
                                                     className="text-sm"
                                                 >
                                                     {item.name}
@@ -189,7 +222,7 @@ export default function Header() {
                                         ))}
 
                                         <li>
-                                            <Link href="/bikes">
+                                            <Link href="/bikes/?filter-by=all">
                                                 All models
                                             </Link>
                                         </li>
@@ -202,7 +235,7 @@ export default function Header() {
                                 </AccordionTrigger>
                                 <AccordionContent className="flex flex-wrap gap-2 text-xs lg:text-sm p-3">
                                     <img
-                                        src="about-us-header.jpg"
+                                        src="/about-us-header.jpg"
                                         alt="Person cycling"
                                     />
                                     <p className="">
@@ -236,6 +269,11 @@ export default function Header() {
                                             <li>
                                                 <Link href="/user/favorites">
                                                     My favorites
+                                                </Link>
+                                            </li>
+                                            <li>
+                                                <Link href="/user/rental-history">
+                                                    My rental history
                                                 </Link>
                                             </li>
                                             <li>
@@ -290,7 +328,7 @@ export default function Header() {
                                 href={"/api/auth/signin"}
                                 className="text-green-500 font-semibold"
                             >
-                                Login
+                                Sign in
                             </Link>
                         </SheetClose>
                     )}
