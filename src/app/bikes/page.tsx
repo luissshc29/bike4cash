@@ -31,14 +31,16 @@ export default function BikesPage() {
                 );
                 const json: { userbikeRatings: IRating[] } = await res.json();
                 const userbikeRatings = json.userbikeRatings;
-                const initialValue = 0;
                 const lenght = userbikeRatings.length;
+                const initialValue = userbikeRatings[0].rating;
+                const individualAvgRating = userbikeRatings.reduce(
+                    (a, b) => (a + b.rating) / lenght,
+                    initialValue
+                );
                 newArray.push({
                     id: array[i].id,
-                    avgRating: userbikeRatings.reduce(
-                        (a, b) => (a + b.rating) / lenght,
-                        initialValue
-                    ),
+                    avgRating:
+                        individualAvgRating > 5 ? 5 : individualAvgRating,
                 });
             } catch (error) {
                 throw new Error();
