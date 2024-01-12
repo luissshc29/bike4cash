@@ -49,7 +49,7 @@ export default function CheckoutPage() {
         new Date(
             new Date().getFullYear(),
             new Date().getMonth(),
-            new Date().getDate()
+            new Date().getDate() + 1
         )
     );
     const [dateDiff, setDateDiff] = useState<number>(
@@ -342,6 +342,13 @@ export default function CheckoutPage() {
                                     </PopoverTrigger>
                                     <PopoverContent>
                                         <Calendar
+                                            fromDate={
+                                                new Date(
+                                                    new Date().getFullYear(),
+                                                    new Date().getMonth(),
+                                                    new Date().getDate()
+                                                )
+                                            }
                                             mode="single"
                                             selected={initialDate}
                                             onSelect={(selectedDate) =>
@@ -376,6 +383,13 @@ export default function CheckoutPage() {
                                     <PopoverContent>
                                         <Calendar
                                             mode="single"
+                                            fromDate={
+                                                new Date(
+                                                    new Date().getFullYear(),
+                                                    new Date().getMonth(),
+                                                    new Date().getDate() + 1
+                                                )
+                                            }
                                             selected={finalDate}
                                             onSelect={(selectedDate) =>
                                                 setFinalDate(
