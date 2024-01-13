@@ -229,7 +229,11 @@ export default function UserPage() {
             try {
                 setImageLoading(true);
                 const res = await imageUpload(formData);
-                const imageUrl = res.url;
+                const imageUrl: string = res.url;
+                setUserData((user) => ({
+                    ...user,
+                    image: imageUrl,
+                }));
                 try {
                     const res = await fetch("/api/user/image", {
                         method: "POST",
@@ -244,9 +248,8 @@ export default function UserPage() {
                     console.log(await res.json());
                     if (res.ok) {
                         toast({
-                            title: "Avatar changed succesfully!",
-                            description:
-                                "Reload the page to see your new profile pic.",
+                            title: "Done!",
+                            description: "Avatar changed succesfully!",
                             className: "bg-green-500 text-white",
                         });
                         setImageSelected(null);
