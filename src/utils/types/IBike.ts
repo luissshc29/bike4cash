@@ -3,7 +3,7 @@ export type IBike = {
     image: string;
     name: string;
     price: number;
-    category: string;
+    category: "Performance" | "Leisure" | "Premium" | "Trail";
     recommended?: boolean;
     rating?: number;
 };

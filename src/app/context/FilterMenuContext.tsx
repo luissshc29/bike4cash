@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState } from "react";
+import type { Dispatch, SetStateAction } from "react";
 
 const FilterMenuContext = createContext<any>(200);
 
@@ -9,8 +10,8 @@ export default function FilterMenuProvider({
 }: {
     children: React.ReactNode;
 }) {
-    const [priceRange, setPriceRange] = useState<number>(250);
-    const [search, setSearch] = useState<string>("");
+    const [priceRange, setPriceRange] = useState(250);
+    const [search, setSearch] = useState("");
     return (
         <FilterMenuContext.Provider
             value={{ priceRange, setPriceRange, search, setSearch }}
@@ -22,9 +23,9 @@ export default function FilterMenuProvider({
 
 type FilterMenuContextType = {
     priceRange: number;
-    setPriceRange: React.Dispatch<React.SetStateAction<number>>;
+    setPriceRange: Dispatch<SetStateAction<number>>;
     search: string;
-    setSearch: React.Dispatch<React.SetStateAction<string>>;
+    setSearch: Dispatch<SetStateAction<string>>;
 };
 
 export function useFilterMenuContext() {

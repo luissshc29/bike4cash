@@ -14,11 +14,28 @@ import {
 import { useFilterMenuContext } from "../context/FilterMenuContext";
 import { IBike } from "@/utils/types/IBike";
 import { IRating } from "@/utils/types/IRating";
+import { GoPlus } from "react-icons/go";
+import { MdOutlineDirectionsBike } from "react-icons/md";
+import { getUserData } from "@/utils/functions/user";
+import { useSession } from "next-auth/react";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTrigger,
+    DialogDescription,
+    DialogTitle,
+    DialogClose,
+} from "../shadcnui/components/ui/dialog";
+import { Input } from "../shadcnui/components/ui/input";
+import Button from "../components/Button/Button";
+import LoadingSVG from "@/utils/svg/LoadingSVG";
 
 export default function BikesPage() {
     const [selectedBikes, setSelectedBikes] = useState<IBike[]>(bikes);
     const { priceRange, search } = useFilterMenuContext();
     const searchParams = useSearchParams();
+    const session = useSession();
 
     const [loading, setLoading] = useState<boolean>(true);
 
@@ -125,14 +142,59 @@ export default function BikesPage() {
                 bike.name.toLowerCase().includes(search.toLowerCase())
             );
         }
-        setLoading(false);
         setSelectedBikes(filteredBikes);
+        getUser();
     }
+
+    const [username, setUsername] = useState<string>("");
+    async function getUser() {
+        if (session.status === "authenticated") {
+            try {
+                const username = (await getUserData(session)).username;
+                setUsername(username);
+                setLoading(false);
+            } catch (error) {
+                console.log("Couldn't obtain username");
+            }
+        }
+    }
+
+    const [bikeAditionError, setBikeAditionError] = useState<string>("");
+
+    const addBike = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const inputArray = Array.from(e.currentTarget.elements);
+        const bikeId = Number(
+            (
+                inputArray.find(
+                    (item) => item.id === "bikeId"
+                ) as HTMLInputElement
+            ).value
+        );
+        const bikeCategory = (
+            inputArray.find(
+                (item) => item.id === "bikeCategory"
+            ) as HTMLInputElement
+        ).value;
+        const bikeName = (
+            inputArray.find(
+                (item) => item.id === "bikeName"
+            ) as HTMLInputElement
+        ).value;
+        const bikePrice = Number(
+            (
+                inputArray.find(
+                    (item) => item.id === "bikePrice"
+                ) as HTMLInputElement
+            ).value
+        );
+        console.log(bikeId, bikeCategory, bikeName, bikePrice);
+    };
 
     useEffect(() => {
         document.title = "Bike4Cash | Our Bikes";
         getSelectedBikes();
-    }, [searchParams, priceRange, search]);
+    }, [session.status, searchParams, priceRange, search]);
 
     if (loading) {
         return (
@@ -220,6 +282,96 @@ export default function BikesPage() {
                         {selectedBikes.map((bike, index) => (
                             <Card bike={bike} key={index} />
                         ))}
+                        {username === "luis_admin" && (
+                            <Dialog
+                                onOpenChange={() => {
+                                    // reset();
+                                }}
+                            >
+                                <DialogTrigger asChild>
+                                    <div className="w-[240px] min-h-[400px] border-[3px] items-center justify-center border-neutral-200 flex flex-wrap gap-2 p-4 shadow-neutral-300 relative hover:cursor-pointer shadow-md">
+                                        <div className="flex gap-1 items-center text-neutral-600">
+                                            <GoPlus />
+                                            <MdOutlineDirectionsBike />
+                                        </div>
+                                    </div>
+                                </DialogTrigger>
+                                <DialogContent>
+                                    <DialogHeader>
+                                        <DialogTitle>Add bike</DialogTitle>
+                                        <DialogDescription>
+                                            Fill up the form below with the
+                                            details of the new bike.
+                                        </DialogDescription>
+                                    </DialogHeader>
+                                    <form
+                                        className="flex flex-col justify-center items-center gap-4 pt-8 px-4"
+                                        onSubmit={(e) => addBike(e)}
+                                    >
+                                        {bikeAditionError && (
+                                            <p className="text-sm text-red-600">
+                                                {bikeAditionError}
+                                            </p>
+                                        )}
+                                        <Input
+                                            id="bikeId"
+                                            type="number"
+                                            placeholder="Bike id"
+                                            className="md:w-4/5"
+                                            required
+                                        />
+                                        <Input
+                                            id="bikeImage"
+                                            type="file"
+                                            placeholder="Bike image"
+                                            className="md:w-4/5"
+                                            required
+                                        />
+                                        <Input
+                                            id="bikeCategory"
+                                            type="text"
+                                            placeholder="Bike category"
+                                            className="md:w-4/5"
+                                            required
+                                        />
+                                        <Input
+                                            id="bikeName"
+                                            type="text"
+                                            placeholder="Bike name"
+                                            className="md:w-4/5"
+                                            required
+                                        />
+                                        <Input
+                                            id="bikePrice"
+                                            type="number"
+                                            placeholder="Bike price"
+                                            className="md:w-4/5"
+                                            required
+                                        />
+                                        <Button
+                                            className="w-[30vh] rounded-lg flex gap-2 justify-center"
+                                            variant="primary"
+                                            disabled={loading}
+                                            type="submit"
+                                        >
+                                            {loading ? (
+                                                <>
+                                                    Loading <LoadingSVG />
+                                                </>
+                                            ) : (
+                                                "Add"
+                                            )}
+                                        </Button>
+                                        <DialogClose
+                                            className="text-sm font-semibold text-green-500"
+                                            disabled={loading}
+                                        >
+                                            Cancel
+                                        </DialogClose>
+                                    </form>
+                                </DialogContent>
+                            </Dialog>
+                        )}
                     </div>
                 </ResizablePanel>
                 <ResizableHandle
