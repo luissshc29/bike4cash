@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from "react";
 import Banner from "../components/Banner/Banner";
-import { bikes } from "@/assets/bikes";
 import Card from "../components/Card/Card";
 import { useSearchParams } from "next/navigation";
 import FilterMenu from "../components/FilterMenu/FilterMenu";
@@ -11,9 +10,7 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "../shadcnui/components/ui/resizable";
-import { useFilterMenuContext } from "../context/FilterMenuContext";
 import { IBike } from "@/utils/types/IBike";
-import { IRating } from "@/utils/types/IRating";
 import { GoPlus } from "react-icons/go";
 import { MdOutlineDirectionsBike } from "react-icons/md";
 import { getUserData } from "@/utils/functions/user";
@@ -30,114 +27,52 @@ import {
 import { Input } from "../shadcnui/components/ui/input";
 import Button from "../components/Button/Button";
 import LoadingSVG from "@/utils/svg/LoadingSVG";
+import { gql, useQuery } from "@apollo/client";
 
 export default function BikesPage() {
-  const [selectedBikes, setSelectedBikes] = useState<IBike[]>(bikes);
-  const { priceRange, search } = useFilterMenuContext();
+  const [selectedBikes, setSelectedBikes] = useState<IBike[]>([]);
   const searchParams = useSearchParams();
   const session = useSession();
 
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loadingUserFetch, setLoadingUserFetch] = useState<boolean>(true);
 
-  async function getAvgBikeRatings(array: IBike[]) {
-    const newArray: { id: number; avgRating: number }[] = [];
-    for (let i = 0; i < array.length; i++) {
-      try {
-        const res = await fetch(
-          `/api/bike/rating/get/by-id/?search-for=${array[i].id}`
-        );
-        const json: { userbikeRatings: IRating[] } = await res.json();
-        const userbikeRatings = json.userbikeRatings;
-        const lenght = userbikeRatings.length;
-        const initialValue = userbikeRatings[0].rating;
-        const individualAvgRating = userbikeRatings.reduce(
-          (a, b) => (a + b.rating) / lenght,
-          initialValue
-        );
-        newArray.push({
-          id: array[i].id,
-          avgRating: individualAvgRating > 5 ? 5 : individualAvgRating,
-        });
-      } catch (error) {
-        throw new Error();
+  const BIKES_QUERY = gql`
+    #graphql
+    query bikes($category: String, $maxPrice: Int, $search: String) {
+      bikes(category: $category, maxPrice: $maxPrice, search: $search) {
+        id
+        image
+        name
+        price
+        category
+        recommended
+        rating {
+          average
+          list {
+            id
+            message
+            rating
+            username
+          }
+        }
       }
     }
+  `;
 
-    return newArray.sort((a, b) => b.avgRating - a.avgRating);
-  }
+  const { data, loading, error, refetch } = useQuery(BIKES_QUERY, {
+    variables: {
+      category: searchParams.get("category") || "",
+      maxPrice: Number(searchParams.get("maxPrice")) || null,
+      search: searchParams.get("search") || "",
+    },
+  });
   async function getSelectedBikes() {
-    setLoading(true);
-    const url = window.location.search;
-    const filter = url && url.replace("?filter-by=", "");
-    var filteredBikes: IBike[] = [];
-    const avgBikesRatings = await getAvgBikeRatings(bikes);
-
-    // Number of recommended bikes
-    var recommendedBikesNumber = avgBikesRatings.filter(
-      (item) => item.avgRating >= 4
-    ).length;
-
-    if (recommendedBikesNumber > 3) {
-      recommendedBikesNumber = 3;
-    }
-
-    const recommendedBikes = avgBikesRatings.slice(0, recommendedBikesNumber);
-    const normalBikes = avgBikesRatings.slice(recommendedBikesNumber);
-    const recommendedIndexArr = recommendedBikes.map((item) => item.id);
-
-    for (let i = 0; i < bikes.length; i++) {
-      if (recommendedIndexArr.includes(bikes[i].id)) {
-        const bikeIndex = recommendedBikes.findIndex(
-          (item) => item.id === bikes[i].id
-        );
-        // Defining the 'recommended' an 'rating' keys on the LOCAL variable
-        filteredBikes.push({
-          ...bikes[i],
-          rating: recommendedBikes[bikeIndex].avgRating || 0,
-          recommended: true,
-        });
-        // Defining the 'recommended' an 'rating' keys on the GLOBAL variable
-        Object.assign(bikes[i], {
-          recommended: true,
-          rating: recommendedBikes[bikeIndex].avgRating || 0,
-        });
-      } else {
-        const bikeIndex = normalBikes.findIndex(
-          (item) => item.id === bikes[i].id
-        );
-        filteredBikes.push({
-          ...bikes[i],
-          rating: normalBikes[bikeIndex].avgRating || 0,
-          recommended: false,
-        });
-        Object.assign(bikes[i], {
-          recommended: false,
-          rating: normalBikes[bikeIndex].avgRating || 0,
-        });
+    if (!loading) {
+      if (data) {
+        setSelectedBikes(data.bikes);
+        getUser();
       }
     }
-
-    if (filter && filter !== "all") {
-      if (filter === "recommended") {
-        filteredBikes = filteredBikes.filter(
-          (item) => item.recommended === true
-        );
-      } else {
-        filteredBikes = filteredBikes.filter(
-          (item) => item.category.toLowerCase() === filter
-        );
-      }
-    } else {
-      filteredBikes = filteredBikes;
-    }
-    filteredBikes = filteredBikes.filter((bikes) => bikes.price <= priceRange);
-    if (search) {
-      filteredBikes = filteredBikes.filter((bike) =>
-        bike.name.toLowerCase().includes(search.toLowerCase())
-      );
-    }
-    setSelectedBikes(filteredBikes);
-    getUser();
   }
 
   const [username, setUsername] = useState<string>("");
@@ -146,16 +81,17 @@ export default function BikesPage() {
       try {
         const username = (await getUserData(session)).username;
         setUsername(username);
-        setLoading(false);
+        setLoadingUserFetch(false);
       } catch (error) {
         console.log("Couldn't obtain username");
+      } finally {
       }
     } else {
-      setLoading(false);
+      setLoadingUserFetch(false);
     }
   }
 
-  const [bikeAditionError, setBikeAditionError] = useState<string>("");
+  const [bikeAddingError, setBikeAddingError] = useState<string>("");
 
   const addBike = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -174,24 +110,32 @@ export default function BikesPage() {
       (inputArray.find((item) => item.id === "bikePrice") as HTMLInputElement)
         .value
     );
+    const date = new Date().toLocaleDateString();
+    window.location.href = `https://api.whatsapp.com/send?phone=+5585989513959&text=Pedido%20%230001%0ABike%20ID%3A%20${bikeId}%0ABike%20Name%3A%20${bikeName}%20%28Category%2${bikeCategory}%29%0AData%3A%${date}%0APagamento%3A%20PIX%0ABike%20Price%3A%20R%24%20${bikePrice}
+`;
     console.log(bikeId, bikeCategory, bikeName, bikePrice);
   };
 
   useEffect(() => {
     document.title = "Bike4Cash | Our Bikes";
+    refetch();
     getSelectedBikes();
-  }, [session.status, searchParams, priceRange, search]);
+  }, [session.status, searchParams, loading]);
 
-  if (loading) {
+  if (loading || loadingUserFetch) {
     return (
-      <div className="h-[20vh] scale-[0.3]">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+      <div className="flex flex-col justify-center items-center my-auto h-[50vh]">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 200 200"
+          className="w-fit scale-[.3] md:scale-[.5] mb-[-4rem] h-fit"
+        >
           <circle
             fill="#22C55E"
             stroke="#22C55E"
             strokeWidth="9"
-            r="3"
-            cx="75"
+            r="15"
+            cx="50"
             cy="135"
           >
             <animate
@@ -208,7 +152,7 @@ export default function BikesPage() {
             fill="#22C55E"
             stroke="#22C55E"
             strokeWidth="9"
-            r="3"
+            r="15"
             cx="100"
             cy="135"
           >
@@ -226,8 +170,8 @@ export default function BikesPage() {
             fill="#22C55E"
             stroke="#22C55E"
             strokeWidth="9"
-            r="3"
-            cx="125"
+            r="15"
+            cx="150"
             cy="135"
           >
             <animate
@@ -241,7 +185,7 @@ export default function BikesPage() {
             ></animate>
           </circle>
         </svg>
-        <h2 className="font-semibold text-center text-green-500 text-xl scale-[2.5]">
+        <h2 className="font-semibold text-base text-center text-green-500 md:text-xl lg:text-xl">
           Gathering our bikes details...
         </h2>
       </div>
@@ -289,8 +233,8 @@ export default function BikesPage() {
                     className="flex flex-col justify-center items-center gap-4 px-4 pt-8"
                     onSubmit={(e) => addBike(e)}
                   >
-                    {bikeAditionError && (
-                      <p className="text-red-600 text-sm">{bikeAditionError}</p>
+                    {bikeAddingError && (
+                      <p className="text-red-600 text-sm">{bikeAddingError}</p>
                     )}
                     <Input
                       id="bikeId"
@@ -353,10 +297,14 @@ export default function BikesPage() {
             )}
           </div>
         </ResizablePanel>
-        <ResizableHandle withHandle className="z-20 bg-green-500 w-[2px]" />
-        <ResizablePanel defaultSize={15} className="bg-white">
+        <ResizableHandle withHandle className="z-[20] bg-green-500 w-[2px]" />
+        <ResizablePanel
+          defaultSize={15}
+          maxSize={75}
+          className="relative bg-white"
+        >
           <div className="top-0 right-0 z-10 absolute bg-gradient-to-r from-transparent to-white w-[4vw] h-full"></div>
-          <FilterMenu />
+          <FilterMenu selectedBikes={selectedBikes} />
         </ResizablePanel>
       </ResizablePanelGroup>
     </div>

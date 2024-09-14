@@ -19,13 +19,13 @@ import {
   SelectValue,
 } from "@/app/shadcnui/components/ui/select";
 import { useToast } from "@/app/shadcnui/components/ui/use-toast";
-import { bikes } from "@/assets/bikes";
 import { getUserData } from "@/utils/functions/user";
 import { paymentMethods } from "@/utils/options/paymentMethods";
 import LoadingSVG from "@/utils/svg/LoadingSVG";
 import { IBike } from "@/utils/types/IBike";
+import { gql, useQuery } from "@apollo/client";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { CiCalendar } from "react-icons/ci";
 
@@ -33,7 +33,8 @@ export default function CheckoutPage() {
   const session = useSession();
   const { toast } = useToast();
   const router = useRouter();
-  const [loading, setLoading] = useState<boolean>(true);
+  const searchParams = useSearchParams();
+  const [loadingPage, setLoadingPage] = useState<boolean>(true);
   const [bike, setBike] = useState<IBike>();
   const [paymentMethod, setPaymentMethod] =
     useState<(typeof paymentMethods)[0]>();
@@ -106,12 +107,41 @@ export default function CheckoutPage() {
   const [chosenInstallments, setChosenInstallments] =
     useState<(typeof installments)[0]>();
 
+  const BIKE_QUERY = gql`
+    #graphql
+    query bike($id: Int!) {
+      bike(id: $id) {
+        id
+        image
+        name
+        price
+        category
+        recommended
+        rating {
+          average
+          list {
+            id
+            message
+            rating
+            username
+          }
+        }
+      }
+    }
+  `;
+
+  const { data, loading, error } = useQuery<{ bike: IBike }>(BIKE_QUERY, {
+    variables: {
+      id: Number(searchParams.get("bike")),
+    },
+  });
+
   function getBike() {
     if (session.status === "authenticated") {
-      const url = new URL(window.location.href);
-      const bikeId = Number(url.search.replace("?bike=", ""));
-      setBike(bikes.find((item) => item.id === bikeId));
-      setLoading(false);
+      if (!loading) {
+        setBike(data?.bike);
+        setLoadingPage(false);
+      }
     }
   }
 
@@ -119,7 +149,7 @@ export default function CheckoutPage() {
 
   async function finishTransaction() {
     if (session.status === "authenticated") {
-      var ableToFinish = true;
+      let ableToFinish = true;
       if (paymentMethod) {
         if (paymentMethod.value === "credit-card") {
           if (chosenInstallments === undefined) {
@@ -160,11 +190,8 @@ export default function CheckoutPage() {
                     Your transaction was finished succesfully! You will be
                     redirected to the home page shortly.
                   </p>
-                  <div className="h-[6px] bg-green-500 mt-8 rounded-full my-auto">
-                    <div
-                      className="h-full w-[0%] bg-white rounded-full animate-loading-bar 
-                                        transition-all duration-7000 w-full"
-                    ></div>
+                  <div className="bg-green-500 my-auto mt-8 rounded-full h-[6px]">
+                    <div className="bg-white rounded-full w-[0%] w-full h-full transition-all animate-loading-bar duration-7000"></div>
                   </div>
                 </div>
               ),
@@ -173,7 +200,7 @@ export default function CheckoutPage() {
             });
             setTimeout(() => {
               if (window.location.pathname === "/user/checkout") {
-                router.push("/bikes/?filter-by=all");
+                router.push("/bikes/?category=all");
               }
             }, 7000);
           } else {
@@ -194,7 +221,7 @@ export default function CheckoutPage() {
   }
 
   function handleDateChange() {
-    var diff =
+    const diff =
       (finalDate?.getTime() as number) - (initialDate?.getTime() as number);
     setDateDiff(Number((diff / 1000 / 60 / 60 / 24).toFixed(0)));
   }
@@ -203,18 +230,22 @@ export default function CheckoutPage() {
     document.title = "Bike4Cash - Checkout";
     getBike();
     handleDateChange();
-  }, [session.status, initialDate, finalDate, paymentMethod]);
+  }, [session.status, initialDate, finalDate, paymentMethod, loading]);
 
-  if (loading) {
+  if (loading || loadingPage) {
     return (
-      <div className="scale-[0.3] h-[20vh]">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+      <div className="flex flex-col justify-center items-center my-auto h-[50vh]">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 200 200"
+          className="w-fit scale-[.3] md:scale-[.5] mb-[-4rem] h-fit"
+        >
           <circle
             fill="#22C55E"
             stroke="#22C55E"
             strokeWidth="9"
-            r="3"
-            cx="75"
+            r="15"
+            cx="50"
             cy="135"
           >
             <animate
@@ -231,7 +262,7 @@ export default function CheckoutPage() {
             fill="#22C55E"
             stroke="#22C55E"
             strokeWidth="9"
-            r="3"
+            r="15"
             cx="100"
             cy="135"
           >
@@ -249,8 +280,8 @@ export default function CheckoutPage() {
             fill="#22C55E"
             stroke="#22C55E"
             strokeWidth="9"
-            r="3"
-            cx="125"
+            r="15"
+            cx="150"
             cy="135"
           >
             <animate
@@ -264,7 +295,7 @@ export default function CheckoutPage() {
             ></animate>
           </circle>
         </svg>
-        <h2 className="scale-[2.5] font-semibold text-green-500 text-xl text-center">
+        <h2 className="font-semibold text-base text-center text-green-500 md:text-xl lg:text-xl">
           Gathering your checkout details...
         </h2>
       </div>
@@ -276,8 +307,8 @@ export default function CheckoutPage() {
       {bike ? (
         <>
           <ExpandedCard bike={bike} />
-          <div className="flex flex-col md:flex-row items-start justify-between p-8 pb-16 w-[95vw] mx-auto mt-8 py-8 border-t-[1px] border-neutral-300">
-            <div className="w-full md:w-1/4 flex flex-col gap-4">
+          <div className="flex md:flex-row flex-col justify-between items-start border-neutral-300 mx-auto mt-8 py-8 p-8 pb-16 border-t-[1px] w-[95vw]">
+            <div className="flex flex-col gap-4 w-full md:w-1/4">
               <div>
                 <Label htmlFor="payment-select">Select a payment method:</Label>
                 <Select
@@ -311,9 +342,9 @@ export default function CheckoutPage() {
               <div className="w-full">
                 <Label>Select the period:</Label>
                 <Popover>
-                  <PopoverTrigger className="w-full mb-2">
+                  <PopoverTrigger className="mb-2 w-full">
                     {" "}
-                    <div className="flex justify-between items-center text-sm px-4 py-2 rounded-md border-[1px] border-green-500 text-left">
+                    <div className="flex justify-between items-center border-[1px] border-green-500 px-4 py-2 rounded-md text-left text-sm">
                       <p>Initial date: {initialDate?.toLocaleDateString()}</p>
                       <CiCalendar className="text-lg" />
                     </div>
@@ -344,7 +375,7 @@ export default function CheckoutPage() {
                 <Popover>
                   <PopoverTrigger className="w-full">
                     {" "}
-                    <div className="flex justify-between items-center text-sm px-4 py-2 rounded-md border-[1px] border-green-500 text-left">
+                    <div className="flex justify-between items-center border-[1px] border-green-500 px-4 py-2 rounded-md text-left text-sm">
                       <p>Final date: {finalDate?.toLocaleDateString()}</p>
                       <CiCalendar className="text-lg" />
                     </div>
@@ -375,7 +406,7 @@ export default function CheckoutPage() {
               </div>
             </div>
             {paymentMethod?.value === "credit-card" && (
-              <div className="mt-4 md:mt-0 animate-content-bottom duration-300 w-full md:w-1/3">
+              <div className="animate-content-bottom mt-4 md:mt-0 w-full md:w-1/3 duration-300">
                 <Label htmlFor="installments-select">
                   Select the number of installments:
                 </Label>
@@ -400,8 +431,8 @@ export default function CheckoutPage() {
               </div>
             )}
 
-            <div className="mt-4 md:mt-0 flex flex-col gap-2 items-star w-full md:w-1/4">
-              <h2 className="font-bold text-lg border-b-[1px] border-neutral-400 w-full text-right">
+            <div className="flex flex-col items-star gap-2 mt-4 md:mt-0 w-full md:w-1/4">
+              <h2 className="text-right border-neutral-400 border-b-[1px] w-full font-bold text-lg">
                 Checkout
               </h2>
               <div>
@@ -465,8 +496,8 @@ export default function CheckoutPage() {
           </div>
         </>
       ) : (
-        <div className="border-b-[1px] border-neutral-400 w-[80vw] mx-auto p-4">
-          <h2 className="text-center mt-8 mb-4 font-semibold text-lg md:text-xl text-neutral-500">
+        <div className="border-neutral-400 mx-auto p-4 border-b-[1px] w-[80vw]">
+          <h2 className="mt-8 mb-4 font-semibold text-center text-lg text-neutral-500 md:text-xl">
             You need to have a valid bike to checkout :(
           </h2>
           <div className="flex flex-wrap gap-1 text-xs md:text-sm">
@@ -474,8 +505,8 @@ export default function CheckoutPage() {
             <Button
               variant="tertiary"
               link={true}
-              href="/bikes/?filter-by=all"
-              className="italic w-fit"
+              href="/bikes/?category=all"
+              className="w-fit italic"
             >
               Bikes
             </Button>{" "}
