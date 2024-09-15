@@ -21,7 +21,9 @@ export default function Banner({
         className={`z-[-10] absolute min-w-[1024px] ${className}`}
         {...rest}
       />
-      <div className="z-10">{children}</div>
+      <div className="z-10 flex flex-col justify-center items-center gap-4">
+        {children}
+      </div>
     </div>
   );
 }

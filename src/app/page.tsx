@@ -1,5 +1,4 @@
 import { Metadata } from "next";
-import Link from "next/link";
 import Banner from "./components/Banner/Banner";
 import Button from "./components/Button/Button";
 
