@@ -306,7 +306,7 @@ export default function BikesPage() {
               )}
             </div>
           ) : (
-            <div className="flex flex-col justify-center items-start gap-4 w-[70vw] md:w-screen h-[90vh]">
+            <div className="flex flex-col justify-center items-start gap-4 ml-0 md:ml-12 w-[70vw] md:w-screen h-[90vh]">
               <TbBikeOff className="text-3xl" />
               <h2 className="font-semibold text-sm md:text-base">
                 We couldn't find any{" "}

@@ -98,7 +98,7 @@ export default function FilterMenu({
   if (!loading) {
     return (
       <div
-        className={`flex flex-col justify-center gap-6 px-4 w-[60vw] md:w-[30vw] bg-white transition-all duration-300 ease-in-out ${
+        className={`flex flex-col justify-center gap-6 px-4 w-[60vw] md:w-[35vw] lg:w-[25vw] bg-white transition-all duration-300 ease-in-out ${
           isSticky ? "fixed top-[2.5rem] " : "absolute top-[2.5rem] "
         }`}
         id="filter-menu"
