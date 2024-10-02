@@ -13,6 +13,9 @@ import {
 import { IBike } from "@/utils/types/IBike";
 import { GoPlus } from "react-icons/go";
 import { MdOutlineDirectionsBike } from "react-icons/md";
+import { FcIdea } from "react-icons/fc";
+import { TbBikeOff } from "react-icons/tb";
+import { RxDotFilled } from "react-icons/rx";
 import { getUserData } from "@/utils/functions/user";
 import { useSession } from "next-auth/react";
 import {
@@ -59,13 +62,16 @@ export default function BikesPage() {
     }
   `;
 
-  const { data, loading, error, refetch } = useQuery(BIKES_QUERY, {
-    variables: {
-      category: searchParams.get("category") || "",
-      maxPrice: Number(searchParams.get("maxPrice")) || null,
-      search: searchParams.get("search") || "",
-    },
-  });
+  const { data, loading, error, refetch } = useQuery<{ bikes: IBike[] }>(
+    BIKES_QUERY,
+    {
+      variables: {
+        category: searchParams.get("category") || "",
+        maxPrice: Number(searchParams.get("maxPrice")) || null,
+        search: searchParams.get("search") || "",
+      },
+    }
+  );
   async function getSelectedBikes() {
     if (!loading) {
       if (data) {
@@ -204,98 +210,144 @@ export default function BikesPage() {
         className="relative z-[5] px-8 pr-0 w-screen"
       >
         <ResizablePanel>
-          <div className="flex flex-wrap justify-center gap-4 pt-8 pb-16 w-full min-w-[80vw]">
-            {selectedBikes.map((bike, index) => (
-              <Card bike={bike} key={index} />
-            ))}
-            {username === "luis_admin" && (
-              <Dialog
-                onOpenChange={() => {
-                  // reset();
-                }}
-              >
-                <DialogTrigger asChild>
-                  <div className="relative flex flex-wrap justify-center items-center gap-2 border-[3px] border-neutral-200 shadow-md shadow-neutral-300 p-4 w-[240px] min-h-[400px] hover:cursor-pointer">
-                    <div className="flex items-center gap-1 text-neutral-600">
-                      <GoPlus />
-                      <MdOutlineDirectionsBike />
+          {selectedBikes.length > 0 ? (
+            <div className="flex flex-wrap justify-center gap-4 pt-8 pb-16 w-full min-w-[80vw]">
+              {selectedBikes.map((bike, index) => (
+                <Card bike={bike} key={index} />
+              ))}
+              {username === "luis_admin" && (
+                <Dialog
+                  onOpenChange={() => {
+                    // reset();
+                  }}
+                >
+                  <DialogTrigger asChild>
+                    <div className="relative flex flex-wrap justify-center items-center gap-2 border-[3px] border-neutral-200 shadow-md shadow-neutral-300 p-4 w-[240px] min-h-[400px] hover:cursor-pointer">
+                      <div className="flex items-center gap-1 text-neutral-600">
+                        <GoPlus />
+                        <MdOutlineDirectionsBike />
+                      </div>
                     </div>
-                  </div>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Add bike</DialogTitle>
-                    <DialogDescription>
-                      Fill up the form below with the details of the new bike.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <form
-                    className="flex flex-col justify-center items-center gap-4 px-4 pt-8"
-                    onSubmit={(e) => addBike(e)}
-                  >
-                    {bikeAddingError && (
-                      <p className="text-red-600 text-sm">{bikeAddingError}</p>
-                    )}
-                    <Input
-                      id="bikeId"
-                      type="number"
-                      placeholder="Bike id"
-                      className="md:w-4/5"
-                      required
-                    />
-                    <Input
-                      id="bikeImage"
-                      type="file"
-                      placeholder="Bike image"
-                      className="md:w-4/5"
-                      required
-                    />
-                    <Input
-                      id="bikeCategory"
-                      type="text"
-                      placeholder="Bike category"
-                      className="md:w-4/5"
-                      required
-                    />
-                    <Input
-                      id="bikeName"
-                      type="text"
-                      placeholder="Bike name"
-                      className="md:w-4/5"
-                      required
-                    />
-                    <Input
-                      id="bikePrice"
-                      type="number"
-                      placeholder="Bike price"
-                      className="md:w-4/5"
-                      required
-                    />
-                    <Button
-                      className="flex justify-center gap-2 rounded-lg w-[30vh]"
-                      variant="primary"
-                      disabled={loading}
-                      type="submit"
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Add bike</DialogTitle>
+                      <DialogDescription>
+                        Fill up the form below with the details of the new bike.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <form
+                      className="flex flex-col justify-center items-center gap-4 px-4 pt-8"
+                      onSubmit={(e) => addBike(e)}
                     >
-                      {loading ? (
-                        <>
-                          Loading <LoadingSVG />
-                        </>
-                      ) : (
-                        "Add"
+                      {bikeAddingError && (
+                        <p className="text-red-600 text-sm">
+                          {bikeAddingError}
+                        </p>
                       )}
-                    </Button>
-                    <DialogClose
-                      className="font-semibold text-green-500 text-sm"
-                      disabled={loading}
-                    >
-                      Cancel
-                    </DialogClose>
-                  </form>
-                </DialogContent>
-              </Dialog>
-            )}
-          </div>
+                      <Input
+                        id="bikeId"
+                        type="number"
+                        placeholder="Bike id"
+                        className="md:w-4/5"
+                        required
+                      />
+                      <Input
+                        id="bikeImage"
+                        type="file"
+                        placeholder="Bike image"
+                        className="md:w-4/5"
+                        required
+                      />
+                      <Input
+                        id="bikeCategory"
+                        type="text"
+                        placeholder="Bike category"
+                        className="md:w-4/5"
+                        required
+                      />
+                      <Input
+                        id="bikeName"
+                        type="text"
+                        placeholder="Bike name"
+                        className="md:w-4/5"
+                        required
+                      />
+                      <Input
+                        id="bikePrice"
+                        type="number"
+                        placeholder="Bike price"
+                        className="md:w-4/5"
+                        required
+                      />
+                      <Button
+                        className="flex justify-center gap-2 rounded-lg w-[30vh]"
+                        variant="primary"
+                        disabled={loading}
+                        type="submit"
+                      >
+                        {loading ? (
+                          <>
+                            Loading <LoadingSVG />
+                          </>
+                        ) : (
+                          "Add"
+                        )}
+                      </Button>
+                      <DialogClose
+                        className="font-semibold text-green-500 text-sm"
+                        disabled={loading}
+                      >
+                        Cancel
+                      </DialogClose>
+                    </form>
+                  </DialogContent>
+                </Dialog>
+              )}
+            </div>
+          ) : (
+            <div className="flex flex-col justify-center items-start gap-4 w-[70vw] md:w-screen h-[90vh]">
+              <TbBikeOff className="text-3xl" />
+              <h2 className="font-semibold text-sm md:text-base">
+                We couldn't find any{" "}
+                <strong className="text-green-500">bike</strong> matching the
+                options.
+              </h2>
+              <div>
+                <div className="flex items-center gap-1 mb-[3px] text-sm md:text-base">
+                  <FcIdea className="text-base md:text-xl" />
+                  <p>You should try to:</p>
+                </div>
+
+                <ul className="ml-2 text-sm md:text-[15px]">
+                  <li className="flex items-center gap-[2px]">
+                    <RxDotFilled />
+                    <p>Search for something different</p>
+                  </li>
+                  <li className="flex items-center gap-[2px]">
+                    <RxDotFilled />
+                    <p>Select a different category</p>
+                  </li>
+                  <li className="flex items-center gap-[2px]">
+                    <RxDotFilled />
+                    <p>Adjust the price range</p>
+                  </li>
+                </ul>
+              </div>
+              <div className="flex flex-wrap items-center gap-[3px] text-sm md:text-base">
+                ...or click{" "}
+                <Button
+                  variant="tertiary"
+                  href={"/bikes/?search=&maxPrice=250&category=all"}
+                  link
+                  className="font-bold underline"
+                >
+                  here
+                </Button>{" "}
+                to reset the filters.
+              </div>
+            </div>
+          )}
         </ResizablePanel>
         <ResizableHandle withHandle className="z-[20] bg-green-500 w-[2px]" />
         <ResizablePanel
