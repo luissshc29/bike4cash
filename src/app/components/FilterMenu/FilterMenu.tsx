@@ -53,7 +53,6 @@ export default function FilterMenu({
       categories {
         id
         name
-        color
       }
     }
   `;

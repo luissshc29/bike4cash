@@ -1,6 +1,5 @@
 "use client";
 
-import { categories } from "@/utils/options/categories";
 import { IBike } from "@/utils/types/IBike";
 import { ITransaction } from "@/utils/types/ITransaction";
 import React, { useEffect, useState } from "react";
@@ -17,6 +16,7 @@ import {
 import { Textarea } from "@/app/shadcnui/components/ui/textarea";
 import { Label } from "@radix-ui/react-label";
 import { useToast } from "@/app/shadcnui/components/ui/use-toast";
+import { categories } from "@/utils/options/categories";
 
 export default function ExpandedCard({
   bike,
@@ -178,7 +178,7 @@ export default function ExpandedCard({
           </p>
           <Button
             variant="tertiary"
-            className="underline text-sm"
+            className="text-sm underline"
             link={true}
             href={`/user/checkout/?bike=${bike.id}`}
           >
@@ -187,18 +187,18 @@ export default function ExpandedCard({
         </>
       )}
 
-      <div className="w-[90vw] mx-auto justify-evenly flex flex-col md:flex-row items-center my-8 px-4 py-8 shadow-lg shadow-neutral-300">
+      <div className="flex md:flex-row flex-col justify-evenly items-center shadow-lg shadow-neutral-300 mx-auto my-8 px-4 py-8 w-[90vw]">
         <img
-          className="w-[30%] md:w-[15%] px-2"
+          className="px-2 w-[30%] md:w-[15%]"
           src={bike.image}
           alt={bike.name}
         />
-        <div className="border-l-[2px] text-md border-green-500 px-2 py-4 flex flex-col gap-3">
-          <h2 className="text-sm md:text-md font-semibold">{bike.name}</h2>
+        <div className="flex flex-col gap-3 border-green-500 px-2 py-4 border-l-[2px] text-md">
+          <h2 className="font-semibold text-sm md:text-md">{bike.name}</h2>
           <p className="text-xs">
             <span className="text-neutral-600">Category:</span>{" "}
             <span
-              className="h-fit white rounded-full px-2 text-white"
+              className="px-2 rounded-full h-fit text-white white"
               style={{
                 backgroundColor: categories.find(
                   (category) => category.name === bike.category
@@ -209,11 +209,11 @@ export default function ExpandedCard({
             </span>
           </p>
         </div>
-        <p className="text-sm font-bold w-fit">
-          <span className="text-neutral-600 font-semibold text-sm align-top">
+        <p className="w-fit font-bold text-sm">
+          <span className="align-top font-semibold text-neutral-600 text-sm">
             R$
           </span>
-          <span className="text-4xl text-green-500 ">
+          <span className="text-4xl text-green-500">
             {bike.price.toFixed(2).slice(0, 3)}
           </span>
           ,{bike.price.toFixed(2).slice(4)} /day
@@ -223,7 +223,7 @@ export default function ExpandedCard({
         <>
           <div className="flex items-center gap-4 h-10">
             <p className="text-sm md:text-md">Rate your experience! - </p>
-            <div className="flex gap-1 items-center">
+            <div className="flex items-center gap-1">
               {ratingStars.map((star) => (
                 <div key={star.id}>
                   {star.id <= (bikeRating as number) ? (
@@ -250,12 +250,12 @@ export default function ExpandedCard({
             </div>
             <Popover>
               <PopoverTrigger>
-                <FaRegMessage className="border-neutral-400 border-[1px] p-1 rounded-lg text-[26px] hover:cursor-pointer" />
+                <FaRegMessage className="border-[1px] border-neutral-400 p-1 rounded-lg text-[26px] hover:cursor-pointer" />
               </PopoverTrigger>
               <PopoverContent className="flex flex-col items-center">
                 <Label
                   htmlFor="rating-textarea"
-                  className="text-[14px] font-semibold w-full text-center mb-2"
+                  className="mb-2 w-full font-semibold text-[14px] text-center"
                 >
                   Send us a message!
                 </Label>
@@ -267,13 +267,13 @@ export default function ExpandedCard({
                     setEditingRating(true);
                     setMessage(e.target.value);
                   }}
-                  className="placeholder:text-[13px] text-sm"
+                  className="text-sm placeholder:text-[13px]"
                 />
               </PopoverContent>
             </Popover>
             <Button
               variant="tertiary"
-              className="underline text-sm duration-300"
+              className="text-sm underline duration-300"
               onClick={() => submitRating()}
               disabled={!editingRating}
             >

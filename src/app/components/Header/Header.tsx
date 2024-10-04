@@ -59,7 +59,6 @@ export default function Header() {
       categories {
         id
         name
-        color
       }
     }
   `;
