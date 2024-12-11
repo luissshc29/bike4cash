@@ -67,21 +67,21 @@ export default function Header() {
 
   if (!loading && !loadingLogout) {
     return (
-      <header className="flex justify-around items-center w-screen py-8 rounded-b-xl shadow-lg shadow-neutral-300 bg-white z-10 relative h-[20vh]">
+      <header className="relative z-10 flex justify-around items-center bg-white shadow-lg shadow-neutral-300 py-8 rounded-b-xl w-screen h-[20vh]">
         <Link
           href="/"
-          className="flex items-center justify-center gap-2 md:gap-4 w-[50vw] md:w-[30vw]"
+          className="flex justify-center items-center gap-2 md:gap-4 w-[50vw] md:w-[30vw]"
         >
           <img src="/logo.png" className="w-1/5 md:w-1/4" />
-          <h1 className="text-xl md:text-3xl font-extrabold">
+          <h1 className="font-extrabold text-xl md:text-3xl">
             Bike<span className="text-green-500">4Cash</span>
           </h1>
         </Link>
-        <Menubar className="w-fit md:flex flex-row-reverse justify-evenly hidden">
+        <Menubar className="md:flex flex-row-reverse justify-evenly hidden w-fit">
           <MenubarMenu>
             {session.data ? (
               <>
-                <MenubarTrigger className="hover:cursor-pointer text-2xl">
+                <MenubarTrigger className="text-2xl hover:cursor-pointer">
                   <FaRegCircleUser />
                 </MenubarTrigger>
                 <MenubarContent>
@@ -97,14 +97,14 @@ export default function Header() {
                   <Dialog>
                     <DialogTrigger
                       asChild
-                      className="text-red-600 text-sm px-2 py-1 font-semibold hover:cursor-pointer"
+                      className="px-2 py-1 font-semibold text-red-600 text-sm hover:cursor-pointer"
                     >
                       <p>Logout</p>
                     </DialogTrigger>
                     <DialogContent>
                       <DialogHeader>
-                        <DialogTitle className="text-red-600 font-bold text-xl">
-                          Signout
+                        <DialogTitle className="font-bold text-red-600 text-xl">
+                          Sign out
                         </DialogTitle>
                         <DialogDescription>
                           Are you sure you want to logout from your account?
@@ -121,11 +121,11 @@ export default function Header() {
                               Loading <LoadingSVG />
                             </>
                           ) : (
-                            "Sign in"
+                            "Sign out"
                           )}
                         </Button>
                         <DialogClose>
-                          <p className="text-red-600 font-semibold">Cancel</p>
+                          <p className="font-semibold text-red-600">Cancel</p>
                         </DialogClose>
                       </DialogFooter>
                     </DialogContent>
@@ -135,17 +135,17 @@ export default function Header() {
             ) : (
               <Link
                 href={"/api/auth/signin"}
-                className="text-green-500 text-md font-semibold px-4"
+                className="px-4 font-semibold text-green-500 text-md"
               >
                 Sign in
               </Link>
             )}
           </MenubarMenu>
           <MenubarMenu>
-            <MenubarTrigger className="text-md font-semibold">
+            <MenubarTrigger className="font-semibold text-md">
               About us
             </MenubarTrigger>
-            <MenubarContent className="flex flex-wrap gap-2 max-w-[25vw] lg:max-w-[40vw] text-xs lg:text-sm p-3">
+            <MenubarContent className="flex flex-wrap gap-2 p-3 max-w-[25vw] lg:max-w-[40vw] text-xs lg:text-sm">
               <img
                 className="rounded-sm"
                 src="/about-us-header.jpg"
@@ -155,21 +155,21 @@ export default function Header() {
                 Welcome to Bike4Cash, where your cycling adventure begins! At
                 Bike4Cash, we're passionate about providing you with top-quality
                 bicycles to elevate your riding experience.{" "}
-                <Link href="/about" className="underline text-xs">
+                <Link href="/about" className="text-xs underline">
                   Read more
                 </Link>
               </p>
             </MenubarContent>
           </MenubarMenu>
           <MenubarMenu>
-            <MenubarTrigger className="text-md font-semibold">
+            <MenubarTrigger className="font-semibold text-md">
               Our bikes
             </MenubarTrigger>
             <MenubarContent>
               <MenubarItem>
                 <Link
                   href={`/bikes/?category=recommended`}
-                  className="text-sm w-full"
+                  className="w-full text-sm"
                 >
                   Recommended
                 </Link>
@@ -178,14 +178,14 @@ export default function Header() {
                 <MenubarItem key={item.id}>
                   <Link
                     href={`/bikes/?category=${item.name.toLowerCase()}`}
-                    className="text-sm w-full"
+                    className="w-full text-sm"
                   >
                     {item.name}
                   </Link>
                 </MenubarItem>
               ))}
               <MenubarItem>
-                <Link href="/bikes/?category=all" className="text-sm w-full">
+                <Link href="/bikes/?category=all" className="w-full text-sm">
                   All models
                 </Link>
               </MenubarItem>
@@ -193,14 +193,14 @@ export default function Header() {
           </MenubarMenu>
         </Menubar>
         <Sheet>
-          <SheetTrigger className="text-2xl md:hidden text-neutral-800">
+          <SheetTrigger className="md:hidden text-2xl text-neutral-800">
             <MdMenuOpen />
           </SheetTrigger>
           <SheetContent className="py-10">
             <div className="mb-4">
               <Accordion type="single" collapsible>
                 <AccordionItem value="item-3">
-                  <AccordionTrigger className="text-md font-bold">
+                  <AccordionTrigger className="font-bold text-md">
                     Our bikes
                   </AccordionTrigger>
                   <AccordionContent>
@@ -231,16 +231,16 @@ export default function Header() {
                   </AccordionContent>
                 </AccordionItem>
                 <AccordionItem value="item-2">
-                  <AccordionTrigger className="text-md font-bold">
+                  <AccordionTrigger className="font-bold text-md">
                     About us
                   </AccordionTrigger>
-                  <AccordionContent className="flex flex-wrap gap-2 text-xs lg:text-sm p-3">
+                  <AccordionContent className="flex flex-wrap gap-2 p-3 text-xs lg:text-sm">
                     <img src="/about-us-header.jpg" alt="Person cycling" />
                     <p className="">
                       Welcome to Bike4Cash, where your cycling adventure begins!
                       At Bike4Cash, we're passionate about providing you with
                       top-quality bicycles to elevate your riding experience.{" "}
-                      <Link href="/about" className="underline text-xs">
+                      <Link href="/about" className="text-xs underline">
                         Read more
                       </Link>
                     </p>
@@ -249,11 +249,11 @@ export default function Header() {
 
                 {session.data && (
                   <AccordionItem value="item-1">
-                    <AccordionTrigger className="text-md font-bold">
+                    <AccordionTrigger className="font-bold text-md">
                       User area
                     </AccordionTrigger>
                     <AccordionContent>
-                      <ul className="text-md font-semibold flex flex-col gap-3">
+                      <ul className="flex flex-col gap-3 font-semibold text-md">
                         <li>
                           <Link href="/user">My profile</Link>
                         </li>
@@ -272,8 +272,8 @@ export default function Header() {
                             </DialogTrigger>
                             <DialogContent>
                               <DialogHeader>
-                                <DialogTitle className="text-red-600 font-bold text-xl">
-                                  Signout
+                                <DialogTitle className="font-bold text-red-600 text-xl">
+                                  Sign out
                                 </DialogTitle>
                                 <DialogDescription>
                                   Are you sure you want to logout from your
@@ -285,12 +285,12 @@ export default function Header() {
                                   className="bg-red-600 rounded-md"
                                   onClick={() => signOut()}
                                 >
-                                  Logout
+                                  Sign out
                                 </Button>
                                 <DialogClose>
                                   <Button
                                     variant="tertiary"
-                                    className="text-red-600 font-semibold"
+                                    className="font-semibold text-red-600"
                                   >
                                     Cancel
                                   </Button>
@@ -309,7 +309,7 @@ export default function Header() {
               <SheetClose>
                 <Link
                   href={"/api/auth/signin"}
-                  className="text-green-500 font-semibold"
+                  className="font-semibold text-green-500"
                 >
                   Sign in
                 </Link>
